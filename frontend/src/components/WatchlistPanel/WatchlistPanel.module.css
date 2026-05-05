@@ -11,7 +11,7 @@
 }
 
 .table th:first-child, .table td:first-child { text-align: left; }
-.table th:last-child, .table td:last-child { border: none; width: 32px; }
+.table th:last-child, .table td:last-child { width: 40px; text-align: center; }
 
 .table thead {
   background: #1a1a2e;
@@ -38,7 +38,8 @@
   border: none;
   color: #555;
   cursor: pointer;
-  font-size: .75rem;
+  font-size: .8rem;
+  padding: 2px 4px;
 }
 .removeBtn:hover { color: #f44336; }
 
