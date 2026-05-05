@@ -47,6 +47,23 @@ public class PriceService {
                 .toList();
     }
 
+    public List<FlipOpportunityDto> searchItems(String query, int limit) {
+        LivePriceResponse priceResponse = wikiClient.fetchLatestPrices();
+        List<ItemMappingDto> mappings = wikiClient.fetchItemMappings();
+
+        Map<Integer, ItemMappingDto> mappingById = mappings.stream()
+                .collect(Collectors.toMap(ItemMappingDto::id, Function.identity()));
+
+        String lowerQuery = query.strip().toLowerCase();
+
+        return priceResponse.data().entrySet().stream()
+                .flatMap(e -> toFlipOpportunity(e, mappingById).stream())
+                .filter(dto -> dto.buyLimit() > 0 && dto.name().toLowerCase().contains(lowerQuery))
+                .sorted(Comparator.comparingLong(FlipOpportunityDto::flipScore).reversed())
+                .limit(limit)
+                .toList();
+    }
+
     public List<PriceHistoryDto> getHistory(int itemId, int hours) {
         OffsetDateTime since = OffsetDateTime.now().minusHours(hours);
         return snapshotRepo

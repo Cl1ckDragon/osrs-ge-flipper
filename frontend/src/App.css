@@ -109,6 +109,36 @@ h1 {
   outline-offset: 1px;
 }
 
+.searchLabel {
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchWrapper input {
+  width: 100%;
+  padding-right: 2rem;
+}
+
+.searchClear {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.searchClear:hover { color: #e0e0e0; }
+
 .status {
   margin-top: 1rem;
   color: #888;
@@ -116,4 +146,18 @@ h1 {
 
 .error {
   color: #f44336;
+}
+
+.sectionLabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f0c040;
+  margin: 1rem 0 0.5rem;
+}
+
+.sectionDivider {
+  border: none;
+  border-top: 1px solid #2a2a3e;
+  margin: 1.25rem 0 0;
 }

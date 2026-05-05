@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AuthForm } from './components/AuthForm/AuthForm';
 import { FlipTable } from './components/FlipTable/FlipTable';
 import { usePrices } from './hooks/usePrices';
+import { useSearch } from './hooks/useSearch';
 import type { AuthResponse } from './types/auth';
 import type { FlipOpportunity } from './types/prices';
 import './App.css';
@@ -17,11 +18,19 @@ function getSavedAuth(): { username: string } | null {
 function App() {
   const [limit, setLimit]         = useState(50);
   const [minMargin, setMinMargin] = useState(100);
+  const [search, setSearch]       = useState('');
   const [showAuth, setShowAuth]   = useState(false);
   const [auth, setAuth]           = useState<{ username: string } | null>(getSavedAuth);
   const [selected, setSelected]   = useState<FlipOpportunity | null>(null);
 
-  const { data, loading, error } = usePrices(limit, minMargin);
+  const { data, loading, error }           = usePrices(limit, minMargin);
+  const { results: searchResults, loading: searchLoading } = useSearch(search);
+
+  const isSearching = search.trim().length > 0;
+
+  // Remove search hits from the top-N list so items don't appear twice
+  const searchResultIds = new Set(searchResults.map(i => i.id));
+  const topFlips = isSearching ? data.filter(i => !searchResultIds.has(i.id)) : data;
 
   function handleAuthSuccess(res: AuthResponse) {
     localStorage.setItem(TOKEN_KEY, res.token);
@@ -38,6 +47,11 @@ function App() {
 
   function handleSelectItem(item: FlipOpportunity) {
     setSelected(prev => prev?.id === item.id ? null : item);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearch(value);
+    setSelected(null);
   }
 
   return (
@@ -60,6 +74,20 @@ function App() {
       </header>
 
       <div className="controls">
+        <label className="searchLabel">
+          Search item
+          <div className="searchWrapper">
+            <input
+              type="text"
+              placeholder="e.g. Abyssal whip"
+              value={search}
+              onChange={e => handleSearchChange(e.target.value)}
+            />
+            {search && (
+              <button className="searchClear" onClick={() => handleSearchChange('')}>✕</button>
+            )}
+          </div>
+        </label>
         <label>
           Min Margin (gp)
           <input
@@ -82,11 +110,33 @@ function App() {
         </label>
       </div>
 
+      {/* Search results section */}
+      {isSearching && (
+        <section>
+          <p className="sectionLabel">
+            {searchLoading ? 'Searching…' : `Results for "${search}"`}
+          </p>
+          {!searchLoading && searchResults.length === 0 && (
+            <p className="status">No items found.</p>
+          )}
+          {!searchLoading && searchResults.length > 0 && (
+            <FlipTable
+              items={searchResults}
+              selectedId={selected?.id ?? null}
+              onSelect={handleSelectItem}
+            />
+          )}
+          <div className="sectionDivider" />
+        </section>
+      )}
+
+      {/* Top flips section */}
+      {isSearching && <p className="sectionLabel">Top {limit} flips</p>}
       {loading && <p className="status">Loading prices…</p>}
       {error   && <p className="status error">Error: {error}</p>}
       {!loading && !error && (
         <FlipTable
-          items={data}
+          items={topFlips}
           selectedId={selected?.id ?? null}
           onSelect={handleSelectItem}
         />

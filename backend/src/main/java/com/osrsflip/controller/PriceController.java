@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 @RestController
@@ -43,6 +45,19 @@ public class PriceController {
             @RequestParam(defaultValue = "100") @Min(0) int minMargin
     ) {
         return ResponseEntity.ok(priceService.getFlipOpportunities(limit, minMargin));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search items by name", description = "Searches the full item dataset — not limited to top results.")
+    @ApiResponse(responseCode = "200", description = "Matching items sorted by flip score")
+    public ResponseEntity<List<FlipOpportunityDto>> searchItems(
+            @Parameter(description = "Partial item name", example = "abyssal")
+            @RequestParam @NotBlank String q,
+
+            @Parameter(description = "Max results (1–20)", example = "5")
+            @RequestParam(defaultValue = "5") @Min(1) @Max(20) int limit
+    ) {
+        return ResponseEntity.ok(priceService.searchItems(q, limit));
     }
 
     @GetMapping("/history/{itemId}")
