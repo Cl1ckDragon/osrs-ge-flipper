@@ -1,0 +1,64 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .875rem;
+}
+
+.table th, .table td {
+  padding: 7px 12px;
+  border: 1px solid #2a2a3e;
+  text-align: right;
+}
+
+.table th:first-child, .table td:first-child { text-align: left; }
+.table th:last-child, .table td:last-child { border: none; }
+
+.table thead {
+  background: #1a1a2e;
+  color: #f0c040;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+.triggered { background: rgba(240, 192, 64, 0.08); }
+.table tbody tr:hover { background: #16213e; }
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+
+.positive { color: #4caf50; }
+
+.badge {
+  color: #f0c040;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+.seen { color: #555; font-size: .8rem; }
+.watching { color: #888; font-size: .8rem; }
+
+.actions { display: flex; gap: .4rem; justify-content: flex-end; }
+
+.dismissBtn {
+  background: none; border: 1px solid #3a3a5e;
+  color: #4caf50; cursor: pointer;
+  border-radius: 3px; padding: 1px 6px; font-size: .8rem;
+}
+.dismissBtn:hover { border-color: #4caf50; }
+
+.deleteBtn {
+  background: none; border: none;
+  color: #555; cursor: pointer; font-size: .75rem;
+}
+.deleteBtn:hover { color: #f44336; }
+
+.status {
+  color: #888;
+  font-size: .875rem;
+  padding: .75rem 0;
+}

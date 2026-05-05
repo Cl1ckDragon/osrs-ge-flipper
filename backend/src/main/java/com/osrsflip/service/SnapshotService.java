@@ -1,5 +1,6 @@
 package com.osrsflip.service;
 
+import com.osrsflip.model.dto.FlipOpportunityDto;
 import com.osrsflip.model.entity.PriceSnapshot;
 import com.osrsflip.repository.PriceSnapshotRepository;
 import org.slf4j.Logger;
@@ -17,18 +18,22 @@ public class SnapshotService {
 
     private final PriceService priceService;
     private final PriceSnapshotRepository snapshotRepo;
+    private final AlertService alertService;
 
-    public SnapshotService(PriceService priceService, PriceSnapshotRepository snapshotRepo) {
+    public SnapshotService(PriceService priceService, PriceSnapshotRepository snapshotRepo,
+                           AlertService alertService) {
         this.priceService = priceService;
         this.snapshotRepo = snapshotRepo;
+        this.alertService = alertService;
     }
 
     @Scheduled(fixedRateString = "${snapshot.interval-ms:300000}")
     public void takeSnapshot() {
         try {
             OffsetDateTime now = OffsetDateTime.now();
-            List<PriceSnapshot> snapshots = priceService.getFlipOpportunities(100, 0)
-                    .stream()
+            List<FlipOpportunityDto> opportunities = priceService.getFlipOpportunities(100, 0);
+
+            List<PriceSnapshot> snapshots = opportunities.stream()
                     .map(dto -> {
                         PriceSnapshot s = new PriceSnapshot();
                         s.setItemId(dto.id());
@@ -44,6 +49,9 @@ public class SnapshotService {
 
             snapshotRepo.saveAll(snapshots);
             log.info("Snapshot saved: {} items at {}", snapshots.size(), now);
+
+            alertService.checkAndTrigger(opportunities);
+
         } catch (Exception e) {
             log.error("Snapshot failed: {}", e.getMessage());
         }

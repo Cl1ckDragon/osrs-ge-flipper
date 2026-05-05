@@ -65,6 +65,37 @@ header {
 
 .btnSecondary:hover { color: #e0e0e0; border-color: #888; }
 
+.btnActive {
+  padding: 0.45rem 1rem;
+  background: rgba(240, 192, 64, 0.15);
+  color: #f0c040;
+  border: 1px solid #f0c040;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  position: relative;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f44336;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.panel {
+  margin-bottom: 0.5rem;
+}
+
 h1 {
   color: #f0c040;
   font-size: 2rem;

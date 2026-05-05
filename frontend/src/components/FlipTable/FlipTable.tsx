@@ -7,9 +7,14 @@ interface Props {
   items: FlipOpportunity[];
   selectedId: number | null;
   onSelect: (item: FlipOpportunity) => void;
+  watchlistIds?: Set<number>;
+  onWatchlistToggle?: (item: FlipOpportunity) => void;
+  onCreateAlert?: (item: FlipOpportunity) => void;
 }
 
-export function FlipTable({ items, selectedId, onSelect }: Props) {
+export function FlipTable({ items, selectedId, onSelect, watchlistIds, onWatchlistToggle, onCreateAlert }: Props) {
+  const showActions = !!onWatchlistToggle;
+
   if (items.length === 0) return <p className={styles.empty}>No items match the current filters.</p>;
 
   return (
@@ -23,6 +28,7 @@ export function FlipTable({ items, selectedId, onSelect }: Props) {
           <th>Buy Limit</th>
           <th>Flip Score</th>
           <th>Est. Profit</th>
+          {showActions && <th></th>}
         </tr>
       </thead>
       <tbody>
@@ -51,11 +57,29 @@ export function FlipTable({ items, selectedId, onSelect }: Props) {
               <td>{item.buyLimit.toLocaleString()}</td>
               <td>{item.flipScore.toLocaleString()}</td>
               <td className={styles.positive}>{item.potentialProfit.toLocaleString()} gp</td>
+              {showActions && (
+                <td className={styles.actions} onClick={e => e.stopPropagation()}>
+                  <button
+                    className={styles.actionBtn}
+                    title={watchlistIds?.has(item.id) ? 'Remove from watchlist' : 'Add to watchlist'}
+                    onClick={() => onWatchlistToggle?.(item)}
+                  >
+                    {watchlistIds?.has(item.id) ? '★' : '☆'}
+                  </button>
+                  <button
+                    className={styles.actionBtn}
+                    title="Set price alert"
+                    onClick={() => onCreateAlert?.(item)}
+                  >
+                    🔔
+                  </button>
+                </td>
+              )}
             </tr>
 
             {item.id === selectedId && (
               <tr className={styles.expandRow}>
-                <td colSpan={7} className={styles.expandCell}>
+                <td colSpan={showActions ? 8 : 7} className={styles.expandCell}>
                   <div className={styles.expandInner}>
                     <HistoryChart
                       itemId={item.id}
