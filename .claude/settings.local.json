@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(curl -s \"http://localhost:8080/api/prices?limit=5&minMargin=0\")"
+    ]
+  }
+}

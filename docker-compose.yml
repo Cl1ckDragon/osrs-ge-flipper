@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: osrsgeflip
+      POSTGRES_USER: ${DB_USER:-osrs}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-osrs}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-osrs} -d osrsgeflip"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/osrsgeflip
+      DB_USER: ${DB_USER:-osrs}
+      DB_PASSWORD: ${DB_PASSWORD:-osrs}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-must-be-32-chars-min}
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-contact@example.com}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pg_data:

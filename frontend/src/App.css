@@ -1,0 +1,77 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0f0f1a;
+  color: #e0e0e0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  padding: 1.5rem;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  margin-bottom: 1.5rem;
+}
+
+h1 {
+  color: #f0c040;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.controls input {
+  padding: 0.5rem 0.75rem;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5e;
+  color: #e0e0e0;
+  border-radius: 4px;
+  width: 130px;
+  font-size: 0.95rem;
+}
+
+.controls input:focus {
+  outline: 2px solid #f0c040;
+  outline-offset: 1px;
+}
+
+.status {
+  margin-top: 1rem;
+  color: #888;
+}
+
+.error {
+  color: #f44336;
+}
