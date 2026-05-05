@@ -19,7 +19,7 @@ public class OsrsWikiClient {
 
     public LivePriceResponse fetchLatestPrices() {
         return restClient.get()
-                .uri("/latest")
+                .uri("/5m")
                 .retrieve()
                 .body(LivePriceResponse.class);
     }

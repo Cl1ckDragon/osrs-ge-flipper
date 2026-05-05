@@ -3,6 +3,7 @@ import { AuthForm } from './components/AuthForm/AuthForm';
 import { FlipTable } from './components/FlipTable/FlipTable';
 import { usePrices } from './hooks/usePrices';
 import type { AuthResponse } from './types/auth';
+import type { FlipOpportunity } from './types/prices';
 import './App.css';
 
 const TOKEN_KEY = 'osrs_token';
@@ -14,10 +15,11 @@ function getSavedAuth(): { username: string } | null {
 }
 
 function App() {
-  const [limit, setLimit]       = useState(50);
+  const [limit, setLimit]         = useState(50);
   const [minMargin, setMinMargin] = useState(100);
-  const [showAuth, setShowAuth] = useState(false);
-  const [auth, setAuth]         = useState<{ username: string } | null>(getSavedAuth);
+  const [showAuth, setShowAuth]   = useState(false);
+  const [auth, setAuth]           = useState<{ username: string } | null>(getSavedAuth);
+  const [selected, setSelected]   = useState<FlipOpportunity | null>(null);
 
   const { data, loading, error } = usePrices(limit, minMargin);
 
@@ -32,6 +34,10 @@ function App() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setAuth(null);
+  }
+
+  function handleSelectItem(item: FlipOpportunity) {
+    setSelected(prev => prev?.id === item.id ? null : item);
   }
 
   return (
@@ -78,7 +84,13 @@ function App() {
 
       {loading && <p className="status">Loading prices…</p>}
       {error   && <p className="status error">Error: {error}</p>}
-      {!loading && !error && <FlipTable items={data} />}
+      {!loading && !error && (
+        <FlipTable
+          items={data}
+          selectedId={selected?.id ?? null}
+          onSelect={handleSelectItem}
+        />
+      )}
 
       {showAuth && (
         <AuthForm onSuccess={handleAuthSuccess} onClose={() => setShowAuth(false)} />

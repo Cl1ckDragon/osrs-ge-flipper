@@ -5,9 +5,12 @@ import com.osrsflip.model.dto.FlipOpportunityDto;
 import com.osrsflip.model.dto.ItemMappingDto;
 import com.osrsflip.model.dto.LivePriceData;
 import com.osrsflip.model.dto.LivePriceResponse;
+import com.osrsflip.model.dto.PriceHistoryDto;
+import com.osrsflip.repository.PriceSnapshotRepository;
 import com.osrsflip.util.FlipScoreCalculator;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +23,13 @@ public class PriceService {
 
     private final OsrsWikiClient wikiClient;
     private final FlipScoreCalculator calculator;
+    private final PriceSnapshotRepository snapshotRepo;
 
-    public PriceService(OsrsWikiClient wikiClient, FlipScoreCalculator calculator) {
+    public PriceService(OsrsWikiClient wikiClient, FlipScoreCalculator calculator,
+                        PriceSnapshotRepository snapshotRepo) {
         this.wikiClient = wikiClient;
         this.calculator = calculator;
+        this.snapshotRepo = snapshotRepo;
     }
 
     public List<FlipOpportunityDto> getFlipOpportunities(int limit, int minMargin) {
@@ -38,6 +44,21 @@ public class PriceService {
                 .filter(dto -> dto.margin() >= minMargin && dto.buyLimit() > 0)
                 .sorted(Comparator.comparingLong(FlipOpportunityDto::flipScore).reversed())
                 .limit(limit)
+                .toList();
+    }
+
+    public List<PriceHistoryDto> getHistory(int itemId, int hours) {
+        OffsetDateTime since = OffsetDateTime.now().minusHours(hours);
+        return snapshotRepo
+                .findByItemIdAndFetchedAtAfterOrderByFetchedAtAsc(itemId, since)
+                .stream()
+                .map(s -> new PriceHistoryDto(
+                        s.getFetchedAt(),
+                        s.getHigh(),
+                        s.getLow(),
+                        s.getHigh() - s.getLow(),
+                        s.getFlipScore()
+                ))
                 .toList();
     }
 
@@ -56,14 +77,17 @@ public class PriceService {
         if (mapping == null) return Optional.empty();
 
         LivePriceData price = entry.getValue();
-        int margin = price.high() - price.low();
+        if (price.avgHighPrice() == null || price.avgLowPrice() == null) return Optional.empty();
+
+        int margin = price.avgHighPrice() - price.avgLowPrice();
         int buyLimit = mapping.limit();
 
         return Optional.of(new FlipOpportunityDto(
                 itemId,
                 mapping.name(),
-                price.high(),
-                price.low(),
+                mapping.icon(),
+                price.avgHighPrice(),
+                price.avgLowPrice(),
                 margin,
                 buyLimit,
                 calculator.calculateScore(margin, buyLimit),

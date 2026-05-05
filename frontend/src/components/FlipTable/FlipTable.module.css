@@ -28,11 +28,57 @@
   background: #0d0d1a;
 }
 
-.table tbody tr:hover {
+.row:hover {
   background: #16213e;
+  cursor: pointer;
 }
 
-.name { font-weight: 500; }
+.selected {
+  background: #16213e;
+  cursor: pointer;
+  outline: 1px solid #f0c040;
+}
+
+/* Expansion row */
+.expandRow {
+  background: transparent !important;
+}
+
+.expandCell {
+  padding: 0 !important;
+  border-top: none !important;
+  border-color: #f0c040 !important;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 400px;
+    opacity: 1;
+  }
+}
+
+.expandInner {
+  overflow: hidden;
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.name {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
 .positive { color: #4caf50; }
 .negative { color: #f44336; }
 .empty { color: #888; font-style: italic; margin-top: 1rem; }

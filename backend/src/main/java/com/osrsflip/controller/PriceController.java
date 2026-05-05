@@ -1,6 +1,7 @@
 package com.osrsflip.controller;
 
 import com.osrsflip.model.dto.FlipOpportunityDto;
+import com.osrsflip.model.dto.PriceHistoryDto;
 import com.osrsflip.service.PriceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,10 +11,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -45,5 +43,20 @@ public class PriceController {
             @RequestParam(defaultValue = "100") @Min(0) int minMargin
     ) {
         return ResponseEntity.ok(priceService.getFlipOpportunities(limit, minMargin));
+    }
+
+    @GetMapping("/history/{itemId}")
+    @Operation(
+            summary = "Get price history for an item",
+            description = "Returns margin snapshots for the given item, taken every 5 minutes."
+    )
+    @ApiResponse(responseCode = "200", description = "List of historical price snapshots")
+    public ResponseEntity<List<PriceHistoryDto>> getHistory(
+            @Parameter(description = "OSRS item ID") @PathVariable int itemId,
+
+            @Parameter(description = "Hours of history to return (1–168)", example = "24")
+            @RequestParam(defaultValue = "24") @Min(1) @Max(168) int hours
+    ) {
+        return ResponseEntity.ok(priceService.getHistory(itemId, hours));
     }
 }

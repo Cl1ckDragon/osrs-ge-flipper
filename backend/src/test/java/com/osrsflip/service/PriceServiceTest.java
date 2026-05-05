@@ -5,6 +5,7 @@ import com.osrsflip.model.dto.FlipOpportunityDto;
 import com.osrsflip.model.dto.ItemMappingDto;
 import com.osrsflip.model.dto.LivePriceData;
 import com.osrsflip.model.dto.LivePriceResponse;
+import com.osrsflip.repository.PriceSnapshotRepository;
 import com.osrsflip.util.FlipScoreCalculator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,17 +19,21 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+// LivePriceData fields: avgHighPrice, highPriceVolume, avgLowPrice, lowPriceVolume, timestamp
 @ExtendWith(MockitoExtension.class)
 class PriceServiceTest {
 
     @Mock
     private OsrsWikiClient wikiClient;
 
+    @Mock
+    private PriceSnapshotRepository snapshotRepo;
+
     private PriceService priceService;
 
     @BeforeEach
     void setUp() {
-        priceService = new PriceService(wikiClient, new FlipScoreCalculator());
+        priceService = new PriceService(wikiClient, new FlipScoreCalculator(), snapshotRepo);
     }
 
     @Test
@@ -36,8 +41,8 @@ class PriceServiceTest {
         // Abyssal whip: margin 500k × buyLimit 2  → score 1_000_000
         // Granite maul: margin 200k × buyLimit 10 → score 2_000_000  (should rank first)
         when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
-                "4151", new LivePriceData(2_500_000, 0L, 2_000_000, 0L),
-                "4153", new LivePriceData(1_000_000, 0L,   800_000, 0L)
+                "4151", new LivePriceData(2_500_000, 10, 2_000_000, 15, 0L),
+                "4153", new LivePriceData(1_000_000, 30,   800_000, 40, 0L)
         )));
         when(wikiClient.fetchItemMappings()).thenReturn(List.of(
                 new ItemMappingDto(4151, "Abyssal whip",  2, true, 96_000, 144_000, 240_000, "", ""),
@@ -54,7 +59,7 @@ class PriceServiceTest {
     @Test
     void getFlipOpportunities_filtersItemsBelowMinMargin() {
         when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
-                "4151", new LivePriceData(2_500_000, 0L, 2_499_950, 0L)  // 50 gp margin
+                "4151", new LivePriceData(2_500_000, 5, 2_499_950, 5, 0L)  // 50 gp margin
         )));
         when(wikiClient.fetchItemMappings()).thenReturn(List.of(
                 new ItemMappingDto(4151, "Abyssal whip", 2, true, 96_000, 144_000, 240_000, "", "")
@@ -68,7 +73,7 @@ class PriceServiceTest {
     @Test
     void getFlipOpportunities_filtersItemsWithZeroBuyLimit() {
         when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
-                "4151", new LivePriceData(2_500_000, 0L, 2_000_000, 0L)
+                "4151", new LivePriceData(2_500_000, 10, 2_000_000, 15, 0L)
         )));
         when(wikiClient.fetchItemMappings()).thenReturn(List.of(
                 new ItemMappingDto(4151, "Abyssal whip", 0, true, 96_000, 144_000, 240_000, "", "")
@@ -80,10 +85,24 @@ class PriceServiceTest {
     }
 
     @Test
+    void getFlipOpportunities_filtersItemsWithNullAvgPrice() {
+        when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
+                "4151", new LivePriceData(null, 0, null, 0, 0L)  // no trades in last 5m
+        )));
+        when(wikiClient.fetchItemMappings()).thenReturn(List.of(
+                new ItemMappingDto(4151, "Abyssal whip", 2, true, 96_000, 144_000, 240_000, "", "")
+        ));
+
+        List<FlipOpportunityDto> result = priceService.getFlipOpportunities(10, 0);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
     void getFlipOpportunities_respectsLimit() {
         when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
-                "4151", new LivePriceData(2_500_000, 0L, 2_000_000, 0L),
-                "4153", new LivePriceData(1_000_000, 0L,   800_000, 0L)
+                "4151", new LivePriceData(2_500_000, 10, 2_000_000, 15, 0L),
+                "4153", new LivePriceData(1_000_000, 30,   800_000, 40, 0L)
         )));
         when(wikiClient.fetchItemMappings()).thenReturn(List.of(
                 new ItemMappingDto(4151, "Abyssal whip",  2, true, 96_000, 144_000, 240_000, "", ""),
@@ -98,7 +117,7 @@ class PriceServiceTest {
     @Test
     void getFlipOpportunities_skipsItemsWithNoMapping() {
         when(wikiClient.fetchLatestPrices()).thenReturn(new LivePriceResponse(Map.of(
-                "99999", new LivePriceData(1_000_000, 0L, 500_000, 0L)  // no mapping
+                "99999", new LivePriceData(1_000_000, 5, 500_000, 5, 0L)  // no mapping
         )));
         when(wikiClient.fetchItemMappings()).thenReturn(List.of());
 
