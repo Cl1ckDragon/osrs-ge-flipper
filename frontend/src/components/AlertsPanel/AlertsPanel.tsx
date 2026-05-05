@@ -24,7 +24,6 @@ export function AlertsPanel({ alerts, loading, onDismiss, onDelete }: Props) {
           <th>Target Margin</th>
           <th>Current Margin</th>
           <th>Status</th>
-          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -46,19 +45,21 @@ export function AlertsPanel({ alerts, loading, onDismiss, onDelete }: Props) {
                 {alert.currentMargin != null ? `${alert.currentMargin.toLocaleString()} gp` : '—'}
               </td>
               <td>
-                {isNew ? (
-                  <span className={styles.badge}>Triggered ✓</span>
-                ) : alert.triggered ? (
-                  <span className={styles.seen}>Seen</span>
-                ) : (
-                  <span className={styles.watching}>Watching</span>
-                )}
-              </td>
-              <td className={styles.actions}>
-                {isNew && (
-                  <button className={styles.dismissBtn} onClick={() => onDismiss(alert.id)} title="Dismiss">✓</button>
-                )}
-                <button className={styles.deleteBtn} onClick={() => onDelete(alert.id)} title="Delete">✕</button>
+                <div className={styles.statusCell}>
+                  {isNew ? (
+                    <span className={styles.badge}>Triggered ✓</span>
+                  ) : alert.triggered ? (
+                    <span className={styles.seen}>Seen</span>
+                  ) : (
+                    <span className={styles.watching}>Watching</span>
+                  )}
+                  <div className={styles.actions}>
+                    {isNew && (
+                      <button className={styles.dismissBtn} onClick={() => onDismiss(alert.id)} title="Dismiss">✓</button>
+                    )}
+                    <button className={styles.deleteBtn} onClick={() => onDelete(alert.id)} title="Delete">✕</button>
+                  </div>
+                </div>
               </td>
             </tr>
           );

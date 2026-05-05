@@ -11,7 +11,7 @@
 }
 
 .table th:first-child, .table td:first-child { text-align: left; }
-.table th:last-child, .table td:last-child { border: none; }
+.table th:last-child, .table td:last-child { text-align: left; }
 
 .table thead {
   background: #1a1a2e;
@@ -42,7 +42,14 @@
 .seen { color: #555; font-size: .8rem; }
 .watching { color: #888; font-size: .8rem; }
 
-.actions { display: flex; gap: .4rem; justify-content: flex-end; }
+.statusCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.actions { display: flex; gap: .4rem; align-items: center; }
 
 .dismissBtn {
   background: none; border: 1px solid #3a3a5e;
