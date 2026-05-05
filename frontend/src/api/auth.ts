@@ -1,7 +1,8 @@
+import { apiBase } from './client';
 import type { AuthResponse } from '../types/auth';
 
 async function post<T>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
+  const res = await fetch(`${apiBase}${url}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
