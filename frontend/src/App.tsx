@@ -7,6 +7,7 @@ import { WatchlistPanel } from './components/WatchlistPanel/WatchlistPanel';
 import { useAlerts } from './hooks/useAlerts';
 import { usePrices } from './hooks/usePrices';
 import { useSearch } from './hooks/useSearch';
+import { useStats } from './hooks/useStats';
 import { useWatchlist } from './hooks/useWatchlist';
 import type { AuthResponse } from './types/auth';
 import type { FlipOpportunity } from './types/prices';
@@ -30,6 +31,8 @@ function App() {
   const [showWatchlist, setShowWatchlist] = useState(false);
   const [showAlerts, setShowAlerts]       = useState(false);
   const [alertTarget, setAlertTarget]     = useState<FlipOpportunity | null>(null);
+
+  const registeredUsers = useStats();
 
   const { data, loading, error }                          = usePrices(limit, minMargin);
   const { results: searchResults, loading: searchLoading} = useSearch(search);
@@ -72,6 +75,9 @@ function App() {
         <div>
           <h1>OSRS GE Flipper</h1>
           <p className="subtitle">Live Grand Exchange flip opportunities, sorted by score</p>
+          {registeredUsers !== null && (
+            <p className="userCount">● {registeredUsers.toLocaleString()} registered traders</p>
+          )}
         </div>
         <div className="authArea">
           {auth ? (

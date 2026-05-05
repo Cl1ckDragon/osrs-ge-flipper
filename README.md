@@ -24,6 +24,7 @@ A full-stack Grand Exchange flipping assistant for Old School RuneScape. Live pr
 - **Rate limiting** — login capped at 5 attempts per minute per IP, register at 3, using the token-bucket algorithm (Bucket4j)
 - **Input validation** — all request bodies validated with Jakarta Bean Validation before reaching service logic
 - **User-scoped data** — watchlist and alert endpoints are JWT-protected; all queries are scoped to the authenticated user, preventing cross-user data access
+- **Registered user count** — live member count displayed in the header, served from a public `GET /api/stats` endpoint
 
 ---
 
@@ -82,6 +83,7 @@ Spring Boot
   ├── GET  /api/prices/history/:id     24h margin history (public)
   ├── POST /api/auth/register          create account
   ├── POST /api/auth/login             issue JWT
+  ├── GET  /api/stats                  registered user count (public)
   ├── GET/POST/DELETE /api/watchlist   saved items (JWT required)
   └── GET/POST/DELETE/PATCH /api/alerts  price alerts (JWT required)
   │
