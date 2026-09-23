@@ -15,8 +15,11 @@
 **Date:** 2026-09-23 **Status:** Accepted
 
 **Context:** Required data: prices, volume and buy limits for ~4000 items, refreshed every few minutes at no cost.
+
 **Options:** The OSRS Wiki Real-time Prices API (180 days of past recorded data with the ability to pull data in 5 minutes or 1 hour increments) and the RuneScape official site's Grand Exchange page which only updates daily.  
+
 **Decision:** The OSRS Wiki Real-time Prices API. Prices, volume and buy limit all in the one place and update every 5 minutes. The official site lacks support and only updates once a day leading to less accurate price watching.
+
 **Consequences:** There are a few rules to follow. 1. The default Python User-Agents are blocked so the header has to be set explicitly with contact information coming from config. 2. Ping within reason in order to not threaten the stability of the entire API. e.g. One request that returns all ~4000 items is better than 4000 requests for one item each. And if the API goes down or has its format changed this app will silently go stale, please see ADR-004 for the recovery process. 
 
 ## ADR-002: Grand Exchange (GE) tax rules
